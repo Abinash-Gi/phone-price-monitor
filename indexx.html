@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flagship Prices DE</title>
+
+  <!-- Fonts: Syne (display) + Space Mono (prices) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #07070d;
+      --surface:  #0f0f1a;
+      --border:   rgba(255,255,255,.07);
+      --text:     #e8e8f0;
+      --muted:    #6b6b88;
+      --apple:    #b4b8c5;       /* Titanium silver */
+      --apple-glow: rgba(180,184,197,.15);
+      --samsung:  #1a8cff;       /* Samsung blue */
+      --samsung-glow: rgba(26,140,255,.15);
+      --green:    #34d175;
+      --gap: clamp(12px, 2vw, 24px);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background grid ─────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout ──────────────────────────────────────────────────── */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: clamp(24px, 5vw, 56px) var(--gap);
+    }
+
+    /* ── Header ──────────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: clamp(32px, 5vw, 60px);
+    }
+
+    .header-left h1 {
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.1;
+    }
+
+    .header-left h1 span {
+      background: linear-gradient(135deg, #fff 30%, var(--muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-left p {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 400;
+      letter-spacing: .02em;
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    /* ── Status badge ────────────────────────────────────────────── */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'Space Mono', monospace;
+      font-size: .72rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 5px 12px;
+      letter-spacing: .04em;
+    }
+
+    .status-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50%      { opacity: .35; }
+    }
+
+    /* ── Refresh button ──────────────────────────────────────────── */
+    #refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'Syne', sans-serif;
+      font-size: .82rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      color: var(--text);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 16px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+
+    #refresh-btn:hover {
+      border-color: rgba(255,255,255,.2);
+      background: rgba(255,255,255,.04);
+    }
+
+    #refresh-btn svg {
+      width: 14px; height: 14px;
+      transition: transform .5s ease;
+    }
+
+    #refresh-btn.spinning svg {
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── Cards grid ──────────────────────────────────────────────── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: var(--gap);
+    }
+
+    /* ── Device card ─────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .5s ease, transform .5s ease, border-color .3s;
+      animation: cardIn .5s ease forwards;
+    }
+
+    .card:nth-child(1) { animation-delay: .05s; }
+    .card:nth-child(2) { animation-delay: .15s; }
+    .card:nth-child(3) { animation-delay: .25s; }
+
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card[data-brand="apple"]:hover  { border-color: rgba(180,184,197,.3); }
+    .card[data-brand="samsung"]:hover { border-color: rgba(26,140,255,.3); }
+
+    /* ── Card header ─────────────────────────────────────────────── */
+    .card-head {
+      padding: 22px 22px 16px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-head::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+    }
+
+    .card[data-brand="apple"]   .card-head::before { background: linear-gradient(90deg, var(--apple), transparent); }
+    .card[data-brand="samsung"] .card-head::before { background: linear-gradient(90deg, var(--samsung), transparent); }
+
+    .brand-pill {
+      display: inline-block;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .card[data-brand="apple"]   .brand-pill { color: var(--apple);   background: var(--apple-glow); }
+    .card[data-brand="samsung"] .brand-pill { color: var(--samsung); background: var(--samsung-glow); }
+
+    .card-head h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      line-height: 1.2;
+    }
+
+    .card-head .starting-price {
+      margin-top: 6px;
+      font-family: 'Space Mono', monospace;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    .card-head .starting-price strong {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .card[data-brand="apple"]   .card-head .starting-price strong { color: var(--apple); }
+    .card[data-brand="samsung"] .card-head .starting-price strong { color: var(--samsung); }
+
+    /* ── Price table ─────────────────────────────────────────────── */
+    .price-table {
+      flex: 1;
+      padding: 12px 0;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 22px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      transition: background .15s;
+    }
+
+    .price-row:last-child { border-bottom: none; }
+    .price-row:hover { background: rgba(255,255,255,.03); }
+
+    .storage-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .82rem;
+      color: var(--muted);
+      letter-spacing: .03em;
+    }
+
+    .price-value {
+      font-family: 'Space Mono', monospace;
+      font-size: .9rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .card[data-brand="apple"]   .price-value { color: var(--text); }
+    .card[data-brand="samsung"] .price-value { color: var(--text); }
+
+    /* ── Card footer ─────────────────────────────────────────────── */
+    .card-foot {
+      padding: 14px 22px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-foot a {
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+
+    .card-foot a:hover { opacity: .7; }
+    .card[data-brand="apple"]   .card-foot a { color: var(--apple); }
+    .card[data-brand="samsung"] .card-foot a { color: var(--samsung); }
+
+    .card-foot .arrow {
+      display: inline-block;
+      transform: translateX(0);
+      transition: transform .2s;
+    }
+
+    .card-foot a:hover .arrow { transform: translateX(4px); }
+
+    /* ── Error state ─────────────────────────────────────────────── */
+    .error-msg {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.6;
+    }
+
+    .error-msg strong {
+      display: block;
+      color: #ff5f5f;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    /* ── Loading skeleton ────────────────────────────────────────── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface) 25%, rgba(255,255,255,.04) 50%, var(--surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      height: 14px;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────── */
+    footer {
+      margin-top: clamp(32px, 5vw, 64px);
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    footer a:hover { color: var(--text); }
+
+    /* ── Responsive ──────────────────────────────────────────────── */
+    @media (max-width: 560px) {
+      .header-right { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- ── Header ───────────────────────────────────────────────────── -->
+  <header>
+    <div class="header-left">
+      <h1><span>Flagship Prices</span><br>Germany 🇩🇪</h1>
+      <p>iPhone 17 Pro · iPhone 17 Pro Max · Galaxy S26 Ultra</p>
+    </div>
+    <div class="header-right">
+      <div class="status-badge">
+        <span class="dot"></span>
+        <span id="last-updated">Loading…</span>
+      </div>
+      <button id="refresh-btn" title="Reload prices.json">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Cards ────────────────────────────────────────────────────── -->
+  <main>
+    <div class="cards" id="cards-container">
+      <!-- Populated by JS -->
+    </div>
+  </main>
+
+  <!-- ── Footer ───────────────────────────────────────────────────── -->
+  <footer>
+    <span>Preise in EUR inkl. MwSt. · UVP der Hersteller</span>
+    <span>Automatisch aktualisiert via <a href=".github/workflows/update-prices.yml">GitHub Actions</a></span>
+  </footer>
+
+</div>
+
+<script>
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+function formatDate(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString('de-DE', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+      timeZone: 'Europe/Berlin'
+    }) + ' (CET)';
+  } catch {
+    return iso;
+  }
+}
+
+function brandLabel(brand) {
+  return brand === 'apple' ? 'Apple' : 'Samsung';
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+
+function render(data) {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+
+  const devices = data.devices || {};
+
+  if (Object.keys(devices).length === 0) {
+    container.innerHTML = '<div class="error-msg"><strong>Keine Preisdaten</strong>prices.json enthält keine Geräte.</div>';
+    return;
+  }
+
+  Object.entries(devices).forEach(([name, device]) => {
+    const brand   = device.brand || 'unknown';
+    const variants = device.variants || [];
+    const minPrice = variants.length
+      ? variants.reduce((m, v) => v.price_raw < m.price_raw ? v : m, variants[0])
+      : null;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.brand = brand;
+
+    // ── Header ────────────────────────────────────────────────────
+    const rows = variants.map(v => `
+      <div class="price-row">
+        <span class="storage-label">${v.storage}</span>
+        <span class="price-value">${v.price}</span>
+      </div>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="card-head">
+        <div class="brand-pill">${brandLabel(brand)}</div>
+        <h2>${name}</h2>
+        ${minPrice ? `
+          <div class="starting-price">
+            ab <strong>${minPrice.price}</strong>
+          </div>` : ''}
+      </div>
+      <div class="price-table">
+        ${rows || '<div class="price-row"><span class="storage-label">Keine Varianten gefunden</span></div>'}
+      </div>
+      <div class="card-foot">
+        <a href="${device.source_url}" target="_blank" rel="noopener">
+          Zum Shop <span class="arrow">→</span>
+        </a>
+        <span style="font-size:.7rem;color:var(--muted);font-family:'Space Mono',monospace;">
+          ${variants.length} Variante${variants.length !== 1 ? 'n' : ''}
+        </span>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+// ── Load data ──────────────────────────────────────────────────────────────
+// Primary:  inline <script id="prices-data"> tag (works on file:// and GitHub Pages)
+// Fallback: fetch prices.json (useful when running via a local HTTP server)
+
+async function load(showSpinner = false) {
+  const btn = document.getElementById('refresh-btn');
+  const updatedEl = document.getElementById('last-updated');
+
+  if (showSpinner) btn.classList.add('spinning');
+
+  try {
+    let data = null;
+
+    // 1. Try inline data first (always works, no network needed)
+    const inlineEl = document.getElementById('prices-data');
+    if (inlineEl && inlineEl.textContent.trim()) {
+      try {
+        data = JSON.parse(inlineEl.textContent);
+      } catch (e) {
+        console.warn('Inline prices-data parse error:', e);
+      }
+    }
+
+    // 2. If refreshing manually or inline missing, try fetch
+    if (!data || showSpinner) {
+      try {
+        const res = await fetch(`./prices.json?t=${Date.now()}`);
+        if (res.ok) {
+          const fetched = await res.json();
+          // Use fetched only if it's newer than inline
+          if (!data || !data.last_updated ||
+              (fetched.last_updated && fetched.last_updated > data.last_updated)) {
+            data = fetched;
+          }
+        }
+      } catch (fetchErr) {
+        // fetch failed (file:// protocol) — that's fine if we already have inline data
+        if (!data) throw fetchErr;
+      }
+    }
+
+    if (!data) throw new Error('Keine Preisdaten gefunden');
+
+    render(data);
+    updatedEl.textContent = data.last_updated
+      ? `Updated: ${formatDate(data.last_updated)}`
+      : 'Updated: unknown';
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('cards-container').innerHTML = `
+      <div class="error-msg">
+        <strong>Fehler beim Laden</strong>
+        prices.json konnte nicht geladen werden.<br>
+        <small style="font-family:'Space Mono',monospace;">${err.message}</small>
+      </div>
+    `;
+    updatedEl.textContent = 'Fehler';
+  } finally {
+    if (showSpinner) setTimeout(() => btn.classList.remove('spinning'), 600);
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+
+document.getElementById('refresh-btn').addEventListener('click', () => load(true));
+load();
+</script>
+
+<!-- Inline price data — updated by scrape.py so the page works on file:// too -->
+<script id="prices-data" type="application/json">
+{
+  "last_updated": "2026-03-30T08:00:00Z",
+  "devices": {
+    "iPhone 17 Pro": {
+      "brand": "apple",
+      "source_url": "https://www.apple.com/de/shop/buy-iphone/iphone-17-pro",
+      "variants": [
+        { "storage": "256 GB", "price_raw": 1299.00, "price": "1.299,00 \u20ac" },
+        { "storage": "512 GB", "price_raw": 1549.00, "price": "1.549,00 \u20ac" },
+        { "storage": "1 TB",   "price_raw": 1799.00, "price": "1.799,00 \u20ac" }
+      ]
+    },
+    "iPhone 17 Pro Max": {
+      "brand": "apple",
+      "source_url": "https://www.apple.com/de/shop/buy-iphone/iphone-17-pro",
+      "variants": [
+        { "storage": "256 GB", "price_raw": 1449.00, "price": "1.449,00 \u20ac" },
+        { "storage": "512 GB", "price_raw": 1699.00, "price": "1.699,00 \u20ac" },
+        { "storage": "1 TB",   "price_raw": 1949.00, "price": "1.949,00 \u20ac" },
+        { "storage": "2 TB",   "price_raw": 2449.00, "price": "2.449,00 \u20ac" }
+      ]
+    },
+    "Samsung Galaxy S26 Ultra": {
+      "brand": "samsung",
+      "source_url": "https://www.samsung.com/de/smartphones/galaxy-s26-ultra/buy/",
+      "variants": [
+        { "storage": "256 GB", "price_raw": 1449.00, "price": "1.449,00 \u20ac" },
+        { "storage": "512 GB", "price_raw": 1599.00, "price": "1.599,00 \u20ac" },
+        { "storage": "1 TB",   "price_raw": 1899.00, "price": "1.899,00 \u20ac" }
+      ]
+    }
+  }
+}
+</script>
+</body>
+</html>
